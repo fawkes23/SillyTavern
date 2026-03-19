@@ -177,7 +177,8 @@
     }
 
     body {
-        touch-action: none;
+        /* Allow vertical scrolling but prevent pinch-to-zoom on mobile. */
+        touch-action: pan-y;
         overflow: hidden;
         position: fixed;
     }
@@ -429,6 +430,35 @@
     .horde_multiple_hint {
         display: none;
     }
+
+    /* Keep the message editor fixed when editing on mobile. */
+    body.editing-message #chat {
+        overflow: hidden;
+    }
+
+    body.editing-message .mes.editing {
+        position: fixed;
+        top: var(--topBarBlockSize, 45px);
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        margin: 0;
+        padding: 0.75rem 0.75rem 0.5rem;
+        background: var(--SmartThemeBackgroundColor);
+        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.45);
+        max-height: calc(100vh - var(--topBarBlockSize, 45px) - 10px);
+        overflow: hidden;
+    }
+
+    body.editing-message .mes.editing .mes_text,
+    body.editing-message .mes.editing textarea.edit_textarea {
+        max-height: calc(100vh - var(--topBarBlockSize, 45px) - 110px);
+        overflow-y: auto;
+    }
+
+    body.editing-message .mes.editing .mes_block {
+        padding-bottom: 0;
+    }
 }
 
 /*landscape mode phones and ipads*/
@@ -503,6 +533,7 @@
     }
 }
 
+
 /*iOS specific*/
 @supports (-webkit-touch-callout: none) {
     body {
@@ -535,7 +566,6 @@
         padding-right: max(env(safe-area-inset-right), 2px);
         padding-left: max(env(safe-area-inset-left), 2px);
         padding-bottom: max(env(safe-area-inset-bottom), 15px);
-
     }
 
     #character_popup,
@@ -560,7 +590,6 @@
         max-height: calc(100vh - 70px);
         max-height: calc(100dvh - 70px);
         max-width: calc(100dvw - 5px);
-
     }
 
     #character_popup,
@@ -577,4 +606,74 @@
     #horde_model {
         height: unset;
     }
+
+    /* 2026 additions */
+
+    /* Prevent text size adjustment on rotation */
+    body {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* Safe area insets for notch/home bar */
+    #top-bar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    #send_form {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Fix stuck save state trigger from keyboard dismiss */
+    #chat {
+        -webkit-overflow-scrolling: auto;
+    }
+
+    /* Remove tap highlight everywhere */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent long press callout on chat messages */
+    .mes_text {
+        -webkit-touch-callout: none;
+    }
+
+    /* Remove 300ms tap delay on interactive elements */
+    button, a, div[role="button"], input[type="checkbox"], .mes_edit_done, .mes_edit_cancel {
+        touch-action: manipulation;
+    }
+
+    /* GPU layer promotion for chat - smoother scrolling */
+    #chat {
+        will-change: transform;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    /* Reduce blur performance hit on older iPhones */
+    @media (max-width: 390px) {
+        #chat,
+        #send_form,
+        #top-bar {
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+    }
+
+    /* Prevent overscroll rubber banding on panels */
+    #left-nav-panel,
+    #right-nav-panel,
+    .drawer-content {
+        overscroll-behavior: contain;
+    }
+
+    /* Smoother momentum scrolling on all scrollable containers */
+    #chat,
+    .scrollableInner,
+    .drawer-content,
+    #rm_print_characters_block {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+ 
 }

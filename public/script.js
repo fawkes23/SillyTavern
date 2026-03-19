@@ -736,6 +736,18 @@ async function firstLoadInit() {
     await hideLoader();
     await fixViewport();
     await eventSource.emit(event_types.APP_READY);
+    // iOS orientation change scroll fix
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        window.addEventListener('resize', function() {
+            setTimeout(function() {
+                if (chat.length > 0) {
+                    void chatElement[0].offsetHeight;
+                    scrollChatToBottom({ waitForFrame: true });
+                }
+            }, 300);
+        });
+    }
+    //initIOSEditModal();
 }
 
 async function fixViewport() {
@@ -8019,6 +8031,10 @@ export async function messageEdit(editMessageId) {
     this_edit_mes_id = editMessageId;
     this_edit_mes_chname = editMessage.name || (editMessage.is_user ? name1 : name2);
 
+    // Prevent page scrolling while editing on mobile and keep editor fixed
+    document.body.classList.add('editing-message');
+    messageElement.addClass('editing');
+
     refreshSwipeButtons();
 
     const chatScrollPosition = chatElement.scrollTop();
@@ -8051,7 +8067,17 @@ export async function messageEdit(editMessageId) {
         $editTextArea.height(editTextArea.scrollHeight);
     }
 
-    $editTextArea.trigger('focus');
+    // Focus without scrolling to avoid iOS viewport jump
+    if (typeof editTextArea.focus === 'function') {
+        try {
+            editTextArea.focus({ preventScroll: true });
+        } catch (e) {
+            // Fallback for browsers that don't support preventScroll
+            $editTextArea.trigger('focus');
+        }
+    } else {
+        $editTextArea.trigger('focus');
+    }
 
     // Sets the cursor at the end of the text
     editTextArea.setSelectionRange(text.length, text.length);
@@ -8108,6 +8134,10 @@ async function messageEditCancel(messageId = this_edit_mes_id) {
         console.warn(`The message editor was closed on message #${messageId} while #${this_edit_mes_id} is being edited.`);
     }
 
+    // Restore normal scroll and layout
+    document.body.classList.remove('editing-message');
+    thisMesDiv.removeClass('editing');
+
     showSwipeButtons();
 }
 
@@ -8163,6 +8193,12 @@ async function messageEditMove(sourceId, targetId) {
 }
 
 async function messageEditDone(div) {
+    // iOS safety: reset stuck save state
+    if (isChatSaving) {
+        console.warn('isChatSaving was stuck true, resetting');
+        isChatSaving = false;
+    }
+
     if (!(this_edit_mes_id >= 0)) {
         console.trace('this_edit_mes_id cannot be blank when calling messageEditDone.');
         return;
@@ -8198,6 +8234,11 @@ async function messageEditDone(div) {
 
     await eventSource.emit(event_types.MESSAGE_UPDATED, this_edit_mes_id);
     this_edit_mes_id = undefined;
+
+    // Restore normal scroll and layout
+    document.body.classList.remove('editing-message');
+    div.closest('.mes').removeClass('editing');
+
     await saveChatConditional();
     showSwipeButtons();
 }
