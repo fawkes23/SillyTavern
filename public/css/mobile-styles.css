@@ -535,7 +535,6 @@
         padding-right: max(env(safe-area-inset-right), 2px);
         padding-left: max(env(safe-area-inset-left), 2px);
         padding-bottom: max(env(safe-area-inset-bottom), 15px);
-
     }
 
     #character_popup,
@@ -560,7 +559,6 @@
         max-height: calc(100vh - 70px);
         max-height: calc(100dvh - 70px);
         max-width: calc(100dvw - 5px);
-
     }
 
     #character_popup,
@@ -576,5 +574,41 @@
 
     #horde_model {
         height: unset;
+    }
+
+    /* 2026 additions */
+
+    /* Prevent text size adjustment on rotation */
+    body {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* Safe area insets for notch/home bar */
+    #top-bar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    #send_form {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Fix stuck save state trigger from keyboard dismiss */
+    #chat {
+        -webkit-overflow-scrolling: auto;
+    }
+
+    /* Remove tap highlight everywhere */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent long press callout on chat messages */
+    .mes_text {
+        -webkit-touch-callout: none;
+    }
+
+    /* Remove 300ms tap delay on interactive elements */
+    button, a, div[role="button"], input[type="checkbox"], .mes_edit_done, .mes_edit_cancel {
+        touch-action: manipulation;
     }
 }
