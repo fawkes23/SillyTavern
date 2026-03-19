@@ -740,6 +740,11 @@ async function firstLoadInit() {
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
         window.addEventListener('resize', function() {
             setTimeout(function() {
+                // Avoid jumping when editing a message (keyboard resize triggers resize event)
+                if (document.body.classList.contains('editing-message')) {
+                    return;
+                }
+
                 if (chat.length > 0) {
                     void chatElement[0].offsetHeight;
                     scrollChatToBottom({ waitForFrame: true });

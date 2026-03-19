@@ -451,7 +451,8 @@
     }
 
     body.editing-message .mes.editing .mes_text,
-    body.editing-message .mes.editing textarea.edit_textarea {
+    body.editing-message .mes.editing textarea.edit_textarea,
+    body.editing-message .mes.editing .reasoning_edit_textarea {
         max-height: calc(100vh - var(--topBarBlockSize, 45px) - 110px);
         overflow-y: auto;
     }
